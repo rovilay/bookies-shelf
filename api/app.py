@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 
-from flask import Flask, request
+from flask import Flask
+from utils import BookUtils
 
 app = Flask(__name__)
 
-@app.route("/")
-def main():
-    return '''
-     <form action="/echo_user_input" method="POST">
-         <input name="user_input">
-         <input type="submit" value="Submit!">
-     </form>
-     '''
+url_prefix = '/api/v1'
 
-@app.route("/echo_user_input", methods=["POST"])
-def echo_input():
-    input_text = request.form.get("user_input", "")
-    return "You entered: " + input_text
+@app.route("/")
+def welcome():
+    return 'Hey bookie, Welcome!'
+
+@app.route(f'{url_prefix}/')
+def welcome_():
+    return 'Hey bookie, Welcome!'
+
+@app.route(f'{url_prefix}/books')
+def get_books():
+    return BookUtils.get_all_books()
