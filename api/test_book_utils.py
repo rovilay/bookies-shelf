@@ -1,4 +1,4 @@
-from utils import BookUtils
+from app import validate_book
 
 def test_validate_book():
   book = {
@@ -7,5 +7,5 @@ def test_validate_book():
     "price": 30
   }
 
-  res = BookUtils.validate_book(book=book, patch_check=True)
+  res = validate_book(book=book, patch_check=True)
   assert res["is_valid"] == True
