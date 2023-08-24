@@ -1,10 +1,10 @@
-name: Test and Build App
+name: Test App
 
 on:
   push:
     branches: [ main, CI-CD ]
   pull_request:
-    branches: [ main, CI-CD ]
+    branches: [ main ]
 
 permissions:
   contents: read
