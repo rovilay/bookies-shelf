@@ -1,5 +1,5 @@
 import json
-from app import app, DUMMY_BOOKS
+from api.app import app, DUMMY_BOOKS
 
 def test_get_all_books():
     response = app.test_client().get('/api/v1/books')

@@ -1,4 +1,4 @@
-from app import validate_book
+from api.app import validate_book
 
 def test_validate_book():
   book = {
