@@ -1,26 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, Response, json
-
-
-DUMMY_BOOKS = [
-  {
-    "title": "Things fall apart",
-    "isbn": "1234567",
-    "price": 30
-  },
-  {
-    "title": "Man's Search for Meaning",
-    "isbn": "12345677",
-    "price": 40
-  },
-  {
-    "title": "12 Rules for Life",
-    "isbn": "1234567777",
-    "price": 140
-  }
-]
-
+from .constants import DUMMY_BOOKS, PORT
 
 def validate_book(book, patch_check=False):
     # checks if book object contains all required properties
@@ -57,3 +38,6 @@ def welcome_():
 @app.route(f'{url_prefix}/books')
 def get_books():
     return get_all_books()
+
+if __name__ == '__main__':
+    app.run(port=PORT)

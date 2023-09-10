@@ -1,3 +1,11 @@
+from flask import Flask
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
 DUMMY_BOOKS = [
   {
     "title": "Things fall apart",
@@ -15,3 +23,5 @@ DUMMY_BOOKS = [
     "price": 140
   }
 ]
+
+PORT = int(os.environ.get("PORT", 5000))
