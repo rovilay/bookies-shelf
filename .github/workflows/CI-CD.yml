@@ -2,7 +2,7 @@ name: Test App
 
 on:
   push:
-    branches: [ main, CI-CD ]
+    branches: [ main, CI-CD-2 ]
   pull_request:
     branches: [ main ]
 
@@ -27,4 +27,14 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Test with pytest
       run: |
-        pytest -m tests
+        python -m pytest tests
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.14 # This is the action
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "bookies-shelf" #Must be unique in Heroku
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
