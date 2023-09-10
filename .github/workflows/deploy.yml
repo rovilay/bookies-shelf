@@ -2,9 +2,10 @@ name: Deploy App
 
 on:
   workflow_run:
-    workflows: Test App
-    branches: [ main ]
-    types: completed
+    workflows: [Test App]
+    branches: [main]
+    types:
+      - completed
 
 permissions:
   contents: read
