@@ -1,8 +1,8 @@
-name: Test and Deploy App
+name: Test App
 
 on:
   push:
-    branches: [ main, CI-CD-2 ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -30,6 +30,7 @@ jobs:
         python -m pytest tests
 
   build-deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
