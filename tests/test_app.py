@@ -1,6 +1,8 @@
 import json
 from api.app import app, DUMMY_BOOKS
 
+# integration test
+
 def test_get_all_books():
     response = app.test_client().get('/api/v1/books')
     books = json.loads(response.data.decode('utf-8')).get("books")
