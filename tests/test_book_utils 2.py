@@ -1,4 +1,4 @@
-from api.book_utils import validate_book
+from api.app import validate_book
 
 # unit test
 
