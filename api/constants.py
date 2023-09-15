@@ -23,5 +23,3 @@ DUMMY_BOOKS = [
     "price": 140
   }
 ]
-
-PORT = int(os.environ.get("PORT", 5000))
