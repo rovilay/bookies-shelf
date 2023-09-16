@@ -10,6 +10,7 @@ db_session = DB_session()
 
 class User(Base):
     __tablename__ = 'users'
+
     id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
     firstname = Column(String(80), nullable=False)
     lastname = Column(String(80), nullable=False)
@@ -37,10 +38,10 @@ class User(Base):
             return User.json_response(new_user)
         except IntegrityError as e:
             db_session.close()
-            return Exception('Email already exist')
+            raise Exception('Email already exist')
         except Exception as e:
             db_session.close()
-            return e
+            raise e
 
     def delete_user(self, id):
         user = db_session.query(User).filter_by(id=id).first()
@@ -59,16 +60,10 @@ class User(Base):
         return User.json_response(user) if user else None
 
     def check_user_password(self, _email, _password):
-        user = db_session.query(User)\
-            .filter_by(email=_email.lower())\
-            .first()
+        user = db_session.query(User).filter_by(email=_email.lower()).first()
     
-        print('user: 😃', user)
-
-        if user:
-            valid = User._check_password(self, _password, user.password)
-            res = User.json_response(user) if valid else False
-            return res
+        if user and User._check_password(self, _password, user.password):
+            return User.json_response(user)
         else:
             return None
 
@@ -79,16 +74,16 @@ class User(Base):
         return res
 
     def _hash_password(self, password):
-        byte_password = bytes(password, encoding='utf-8')
+        byte_password = bytes(password, encoding='UTF-8')
         hashed = bcrypt.hashpw(byte_password, bcrypt.gensalt())
-        hash_refined = User.refine_token(self, str(hashed))
+        hash_refined = User.refine_token(self, hashed.decode(encoding="utf-8"))
 
         return hash_refined
 
 
     def _check_password(self, password, hashed):
-        byte_password = bytes(password, encoding='utf-8')
-        hasheds = '$2y$12$sZvqknq.WcatWo/dr4eJt.WB1fSmOi1ot7gYbzCX5lPXlFEUWmKSu'
+        byte_password = bytes(str(password), encoding='utf-8')
+        # hasheds = '$2y$12$sZvqknq.WcatWo/dr4eJt.WB1fSmOi1ot7gYbzCX5lPXlFEUWmKSu'
         check = bcrypt.checkpw(byte_password, bytes(hashed, encoding='utf-8'))
         return check
     
@@ -97,7 +92,6 @@ class User(Base):
         try:
             # reg = re.compile(r"(^(Bearer'))")
             refined_token = token.split(' ')[1] if token.startswith('Bearer ') else token
-            print(token , '🥶', refined_token)
             return refined_token
         except Exception as e:
             raise e
@@ -159,12 +153,7 @@ class Book(Base):
 
             if book_to_update == None or book_to_update["user_id"] != user_id:
                 return False
-            
-            # if updated_book and updated_book['user_id'] != user_id: return 403
 
-            # updated_book = Book.json_response(book_to_update)
-
-            # if updated_book and updated_book['user_id'] == user_id:
             book_to_update.title = book_update_data['title'] if "title" in book_update_data else book_to_update.title
             book_to_update.isbn = book_update_data['isbn'] if "isbn" in book_update_data else book_to_update.isbn
             book_to_update.price = book_update_data['price'] if "price" in book_update_data else book_to_update.price
@@ -174,10 +163,7 @@ class Book(Base):
 
             db_session.commit()
             return Book.json_response(book_to_update)
-            # elif updated_book and updated_book['user_id'] != user_id:
-            #     return 403
-            # else:
-            #     return False
+
         except Exception as e:
             db_session.close()
             return e
@@ -185,12 +171,10 @@ class Book(Base):
     def delete_book(self, id, user_id):
         try:
             book = db_session.query(Book).filter_by(id=id).first()
-            # _book = Book.json_response(book) if book else None
 
             if book == None or book["user_id"] != user_id:
                 return False
 
-            # if _book and _book['user_id'] == user_id:
             book.favourites.clear()
             db_session.commit()
 
@@ -198,10 +182,7 @@ class Book(Base):
             db_session.delete(book)
             db_session.commit()
             return True
-            # elif _book and _book['user_id'] != user_id:
-            #     return 403
-            # else:
-            #     return False
+
         except Exception as e:
             db_session.close()
             return e

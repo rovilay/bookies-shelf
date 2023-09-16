@@ -5,11 +5,9 @@ import re
 from .__helpers import CustomException
 from ..models.__models import User as UserModel
 
-User = UserModel()
-
 def validate_user_names(user_data, errors_obj={}):
     try:
-        user_is_valid = False
+        user_is_valid = True
         errors = errors_obj
         user_keys = list(user_data.keys())
         valid_keys = ['firstname', 'lastname']
@@ -17,6 +15,7 @@ def validate_user_names(user_data, errors_obj={}):
 
         if len(common_keys) != 2:
             errors['names'] = 'firstname and lastname are required!'
+            user_is_valid = False
 
         int_reg = re.compile(r"(^\d$)")
         for key in list(common_keys):
@@ -25,15 +24,15 @@ def validate_user_names(user_data, errors_obj={}):
             # checks if integer is in title
             if int_reg.search(val) is not None:
                 errors[key] = f'firstname and lastname must not contain numbers'
-
-        return errors
+                user_is_valid = False
+        return (user_is_valid, errors)
     except Exception as e:
-        return e
+        raise e
 
 
 def validate_email_password(user_data, errors_obj={}):
     try:
-        user_is_valid = False
+        user_is_valid = True
         errors = errors_obj
         user_keys = list(user_data.keys())
         valid_keys = ['email', 'password']
@@ -41,6 +40,7 @@ def validate_email_password(user_data, errors_obj={}):
 
         if len(common_keys) != 2:
             errors['data'] = 'email and password are required!'
+            user_is_valid = False
 
         email_reg = re.compile(
             r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
@@ -48,11 +48,13 @@ def validate_email_password(user_data, errors_obj={}):
         for key in list(common_keys):
             if key == 'email' and email_reg.match(user_data[key]) is None:
                 errors[key] = f'email is not valid'
+                user_is_valid = False
             if key == 'password' and len(str(user_data[key])) < 7:
                 errors[key] = 'password must not be less than 7 characters'
-        return errors
+                user_is_valid = False
+        return (user_is_valid, errors)
     except Exception as e:
-        return e
+        raise e
 
 
 def get_token(secret_key, payload):
@@ -62,20 +64,18 @@ def get_token(secret_key, payload):
         token = jwt.encode(payload, secret_key, algorithm='HS256')
         return token
     except Exception as e:
-        return e
+        raise e
 
 
 def validate_token(token, secret_key):
     try:
         if token:
-            refined_token = User.refine_token(token)
-            print(refined_token, '👀')
+            refined_token = UserModel().refine_token(token)
             decoded_token = jwt.decode(refined_token, secret_key, algorithms=['HS256'])
             return decoded_token
         else:
             raise CustomException('Token must be provided!', status=401)
     except jwt.exceptions.DecodeError as e:
-        print(e, '😤')
         e = CustomException('Invalid token', status=401)
         raise e
     except jwt.exceptions.ExpiredSignatureError:
@@ -89,11 +89,10 @@ def validate_token(token, secret_key):
 def authenticate(token, secret_key):
     try:
         decoded_token = validate_token(token, secret_key)
-        print('🥰', decoded_token)
         email = decoded_token['email']
         id = decoded_token['id']
 
-        confirmed_user = User.check_user_id(email, id)
+        confirmed_user = UserModel().check_user_id(email, id)
         if confirmed_user:
             return confirmed_user
         else:

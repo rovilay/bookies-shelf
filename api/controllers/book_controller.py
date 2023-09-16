@@ -176,7 +176,7 @@ def fav_book(secret_key, id):
         response = None
         if favourite_book:
             message = 'Book added as favourite'
-            response = server_res(message, status=200, location=location, book_data=a)
+            response = server_res(message, status=200, location=location, book_data=a, success=True)
         else:
             message = f'book with id: {id} was not found'
             response = server_res(message, status=404, location=location)
