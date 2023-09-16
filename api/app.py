@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
-
+import os
 from flask import Flask
 from flask_cors import CORS
-from .controllers.user import signup_user, login_user
-from .controllers.book import get_all_books, get_books_by_id, create_books, modify_books, remove_books, fav_book, del_fav_book, get_all_fav_books
-from .settings import PORT, SECRET_KEY, DEBUG, DATABASE_URL, SQLALCHEMY_TRACK_MODIFICATIONS
-from .models.__utils import init_db
+from .controllers.user_controller import signup_user, login_user
+from .controllers.book_controller import get_all_books, get_books_by_id, create_books, modify_books, remove_books, fav_book, del_fav_book, get_all_fav_books
+from .settings import init_env_variables
 
 app = Flask(__name__)
 
-app.config['DEBUG'] = DEBUG
-app.config['DATABASE_URI'] = DATABASE_URL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
-app.config['SECRET_KEY'] = SECRET_KEY
+app.config['DEBUG'] = os.environ.get("DEBUG", "false")
+app.config['DATABASE_URL'] = os.environ.get("DATABASE_URL", "")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS", "false")
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY", "")
+app.config['PORT'] = int(os.environ.get("PORT", 5000))
 
 secret_key = app.config['SECRET_KEY']
 
 url_prefix = '/api/v1'
+
+init_env_variables(app)
+
+from .models.__utils import init_db
 
 init_db()
 
@@ -81,4 +85,4 @@ def remove_fav_books(id):
     return del_fav_book(secret_key, id)
 
 if __name__ == '__main__':
-    app.run(port=PORT)
+    app.run(port=app.config['PORT'])

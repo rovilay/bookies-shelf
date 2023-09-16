@@ -3,19 +3,16 @@ from ..helpers.user_helpers import validate_user_names, validate_email_password,
 from ..helpers.__helpers import server_res, CustomException
 from ..models.__models import User as UserModel
 
-User = UserModel()
-
-
 def signup_user(secret_key):
-    location = '/signup'
+    location = '/register'
     try:
         print('hello')
         user_data = request.get_json()
         if isinstance(user_data, dict):
-            init_errors = validate_user_names(user_data)
-            errors = validate_email_password(user_data, errors_obj=init_errors)
+            valid, init_errors = validate_user_names(user_data)
+            valid, errors = validate_email_password(user_data, errors_obj=init_errors)
 
-            if bool(errors):
+            if valid == False:
                 message = str(errors)
                 raise CustomException(message, status=400)
             else:
@@ -24,7 +21,7 @@ def signup_user(secret_key):
                 email = user_data['email']
                 password = user_data['password']
 
-                new_user = User.add_user(firstname, lastname, email, password)
+                new_user = UserModel().add_user(firstname, lastname, email, password)
                 if isinstance(new_user, Exception) and str(new_user) == 'Email already exist':
                     message = 'Email already exist'
                     raise CustomException(message, status=409)
@@ -33,7 +30,7 @@ def signup_user(secret_key):
                 else:
                     token = get_token(secret_key, new_user)
                     response = server_res('Signup successful!', success=True,
-                                          status=201, location='/login', token=str(token))
+                                          status=201, location='/register', token=str(token))
                     return response
 
         else:
@@ -55,8 +52,9 @@ def login_user(secret_key):
         if isinstance(user_data, dict) and ('email' and 'password' in user_data):
             email = user_data['email']
             password = user_data['password']
+            
+            confirm_user = UserModel().check_user_password(email, password)
 
-            confirm_user = User.check_user_password(email, password)
             if isinstance(confirm_user, dict) and ('email' in confirm_user):
                 token = get_token(secret_key, confirm_user)
                 response = server_res('Login successful!', success=True, status=200, location='/login', token=str(token))
