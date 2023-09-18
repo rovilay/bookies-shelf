@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
-from flask import Flask
+from flask import Flask, Response
 from flask_cors import CORS
+import prometheus_client
 from .controllers.user_controller import signup_user, login_user
 from .controllers.book_controller import get_all_books, get_books_by_id, create_books, modify_books, remove_books, fav_book, del_fav_book, get_all_fav_books
 from .settings import init_env_variables
+from .helpers.metrics import init_metrics
 
 app = Flask(__name__)
 
@@ -19,6 +21,7 @@ secret_key = app.config['SECRET_KEY']
 url_prefix = '/api/v1'
 
 init_env_variables(app)
+init_metrics(app)
 
 from .models.__utils import init_db
 
@@ -83,6 +86,10 @@ def fav_books(id):
 @app.route(f'{url_prefix}/books/<int:id>/favourites', methods=['DELETE'])
 def remove_fav_books(id):
     return del_fav_book(secret_key, id)
+
+@app.route('/metrics/')
+def metrics():
+    return Response(prometheus_client.generate_latest())
 
 if __name__ == '__main__':
     app.run(port=app.config['PORT'])
