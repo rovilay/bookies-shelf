@@ -2,22 +2,6 @@
   "name": "bookies-shelf-ui",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.2",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^1.5.0",
-    "flowbite": "^1.8.1",
-    "flowbite-react": "^0.6.0",
-    "lodash.debounce": "^4.0.8",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0",
-    "react-scripts": "5.0.1",
-    "swr": "^2.2.2",
-    "web-vitals": "^2.1.4"
-  },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -42,8 +26,24 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {
+  "dependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.5.0",
+    "flowbite": "^1.8.1",
+    "flowbite-react": "^0.6.0",
+    "lodash.debounce": "^4.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.16.0",
+    "react-scripts": "5.0.1",
+    "swr": "^2.2.2",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.30",
     "tailwindcss": "^3.3.3"
