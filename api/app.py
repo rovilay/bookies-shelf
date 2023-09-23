@@ -27,7 +27,7 @@ from .models.__utils import init_db
 
 init_db()
 
-CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+CORS(app)
 
 @app.route("/")
 def welcome():

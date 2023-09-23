@@ -26,7 +26,15 @@ function BookModal({ book, open, onClose }) {
             fetcher().put(`/books/${book?.id}`, payload)
                 .then((response) => {
                     setMessage(response.data.message)
-                    mutate([...books, response.data.book_data])
+                    const bks = [...books]
+                    if (book?.id) {
+                        const i = bks.findIndex((bk) => bk.id === response?.data?.book_data?.id)
+                        if (i >= 0) bks[i] = response.data.book_data
+                    } else {
+                        bks.push(response.data.book_data)
+                    }
+
+                    mutate(bks)
                     setLoading(false)
 
                     onClose(false)
