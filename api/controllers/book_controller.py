@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response, json
+from flask import request, json
 from ..helpers.book_helpers import validate_book, refine_book_data
 from ..helpers.user_helpers import authenticate
 from ..helpers.__helpers import server_res, CustomException
@@ -66,7 +66,6 @@ def create_books(secret_key):
     try:
         token = request.headers.get('authorization')
         decoded_token = authenticate(token, secret_key)
-        print('token: ', decoded_token)
 
         new_book_data = request.get_json()
         book = validate_book(new_book_data)
@@ -107,32 +106,37 @@ def modify_books(secret_key, id):
         decoded_token = authenticate(token, secret_key)
 
         book_update_data = request.get_json()
-        patch_book = True if request.method == 'PATCH' else False
-        refined_book = refine_book_data(book_update_data)
-        book = validate_book(refined_book, patch_book)
+        # patch_book = True if request.method == 'PATCH' else False
+        # refined_book = refine_book_data(book_update_data)
+        book = validate_book(book_update_data)
+        print('not_validddd')
+
         response = None
         if book['is_valid']:
             user_id = decoded_token['id']
-            updated_book = Book.update_book(id, refined_book, user_id)
-            if updated_book and updated_book != 403:
-                message = 'Update successful'
-                response = server_res(message, status=200, success=True,
-                                      book_data=updated_book, location=location)
-            elif updated_book and updated_book == 403:
-                message = f'This book does not belong to you!'
-                response = server_res(message, status=403, location=location)
-            else:
+            updated_book = Book.update_book(id, book_update_data, user_id)
+            print('is_valid', updated_book)
+            if updated_book == None:
                 message = f'book with id: {id} was not found'
-                response = server_res(message, status=404, location=location)
+                raise CustomException(message=message, status=404)
+
+            if updated_book["user_id"] != user_id:
+                message = f'This book does not belong to you!'
+                raise CustomException(message=message, status=403)
+
+            message = 'Update successful'
+            response = server_res(message, status=200, success=True,
+                                      book_data=updated_book, location=location)
         else:
             message = 'Book parameters must contain title, price and/or isbn'
             response = server_res(message, status=400, location=location)
         return response
     except CustomException as e:
+        print('not_valid', e)
         error_obj = e.get_exception_obj() 
-        response = server_res(error_obj['message'], status=error_obj['status'])
-        return response
+        return server_res(error_obj['message'], status=error_obj['status'])
     except Exception as e:
+        print('not_validd', e)
         return server_res(str(e), location=location)
 
 
@@ -200,7 +204,7 @@ def del_fav_book(secret_key, id):
         response = None
         if remove_fav_book is True:
             message = 'Book removed as favourite'
-            response = server_res(message, status=200, location=location)
+            response = server_res(message, status=200, location=location, success=True)
         elif remove_fav_book is False:
             message = f'book with id: {id} was not found'
             response = server_res(message, status=404, location=location)

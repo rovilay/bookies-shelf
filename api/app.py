@@ -3,7 +3,7 @@ import os
 from flask import Flask, Response
 from flask_cors import CORS
 import prometheus_client
-from .controllers.user_controller import signup_user, login_user
+from .controllers.user_controller import signup_user, login_user, get_user
 from .controllers.book_controller import get_all_books, get_books_by_id, create_books, modify_books, remove_books, fav_book, del_fav_book, get_all_fav_books
 from .settings import init_env_variables
 from .helpers.metrics import init_metrics
@@ -47,6 +47,9 @@ def signup():
 def login():
     return login_user(secret_key)
 
+@app.route(f'{url_prefix}/me', methods=['GET'])
+def me():
+    return get_user(secret_key)
 
 @app.route(f'{url_prefix}/books')
 def get_books():
@@ -63,7 +66,7 @@ def add_books():
     return create_books(secret_key)
 
 
-@app.route(f'{url_prefix}/books/<int:id>', methods=['PUT', 'PATCH'])
+@app.route(f'{url_prefix}/books/<int:id>', methods=['PUT'])
 def update_books(id):
     return modify_books(secret_key, id)
 

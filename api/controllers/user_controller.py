@@ -1,6 +1,7 @@
 from flask import request
 from ..helpers.user_helpers import validate_user_names, validate_email_password, get_token
 from ..helpers.__helpers import server_res, CustomException
+from ..helpers.user_helpers import authenticate
 from ..models.__models import User as UserModel
 
 def signup_user(secret_key):
@@ -30,7 +31,7 @@ def signup_user(secret_key):
                 else:
                     token = get_token(secret_key, new_user)
                     response = server_res('Signup successful!', success=True,
-                                          status=201, location='/register', token=str(token))
+                                          status=201, location='/register', token=str(token), id=new_user['id'], email=new_user['email'])
                     return response
 
         else:
@@ -53,11 +54,11 @@ def login_user(secret_key):
             email = user_data['email']
             password = user_data['password']
             
-            confirm_user = UserModel().check_user_password(email, password)
+            confirmed_user = UserModel().check_user_password(email, password)
 
-            if isinstance(confirm_user, dict) and ('email' in confirm_user):
-                token = get_token(secret_key, confirm_user)
-                response = server_res('Login successful!', success=True, status=200, location='/login', token=str(token))
+            if isinstance(confirmed_user, dict) and ('email' in confirmed_user):
+                token = get_token(secret_key, confirmed_user)
+                response = server_res('Login successful!', success=True, status=200, location='/login', token=str(token), id=confirmed_user['id'], email=confirmed_user['email'])
                 return response
             else:
                 message = 'Invalid Email or Password!'
@@ -70,4 +71,18 @@ def login_user(secret_key):
         return response
     except Exception as e:
         response = server_res(str(e), location='/login')
+        return response
+
+def get_user(secret_key):
+    try:
+        token = request.headers.get('authorization')
+        confirmed_user = authenticate(token, secret_key)
+
+        response = server_res('user retrieved successfully!', success=True, status=200, location='/me', user=confirmed_user)
+        return response
+    except CustomException as e:
+        response = server_res(e.message, status=e.status, location='/me')
+        return response
+    except Exception as e:
+        response = server_res(str(e), location='/me')
         return response
