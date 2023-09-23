@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship, backref, join
 import json
@@ -149,24 +149,40 @@ class Book(Base):
 
     def update_book(self, id, book_update_data, user_id):
         try:
-            book_to_update = db_session.query(Book).filter_by(id=id).first()
+            book = db_session.query(Book).filter(Book.id==id).first()
+            print('🥶', book)
 
-            if book_to_update == None or book_to_update["user_id"] != user_id:
-                return False
+            if book == None:
+                return None
+            
+            book_to_update = book.json_response()
+            print('🥶🥶', book_to_update)
 
-            book_to_update.title = book_update_data['title'] if "title" in book_update_data else book_to_update.title
-            book_to_update.isbn = book_update_data['isbn'] if "isbn" in book_update_data else book_to_update.isbn
-            book_to_update.price = book_update_data['price'] if "price" in book_update_data else book_to_update.price
-            book_to_update.image = book_update_data['image'] if "image" in book_update_data else book_to_update.image
-            book_to_update.image_name = book_update_data[
-                'image_name'] if "image_name" in book_update_data else book_to_update.image_name
+            if book_to_update["user_id"] != user_id:
+                return book_to_update
 
+            book_to_update["title"] = book_update_data['title'] if "title" in book_update_data else book_to_update["title"]
+            book_to_update["isbn"] = book_update_data['isbn'] if "isbn" in book_update_data else book_to_update["isbn"]
+            book_to_update["price"] = book_update_data['price'] if "price" in book_update_data else book_to_update["price"]
+            book_to_update["image"] = book_update_data['image'] if "image" in book_update_data else book_to_update["image"]
+            book_to_update["image_name"] = book_update_data[
+                'image_name'] if "image_name" in book_update_data else book_to_update["image_name"]
+            
+            update_statement = update(Book).where(Book.id == id).values(
+                title=book_to_update["title"],
+                price=book_to_update["price"],
+                isbn=book_to_update["isbn"]
+            )
+
+            db_session.execute(update_statement)
             db_session.commit()
-            return Book.json_response(book_to_update)
-
+            return book_to_update
+        except IntegrityError as e:
+            db_session.close()
+            raise Exception('Book with the same title already exist!')
         except Exception as e:
             db_session.close()
-            return e
+            raise e
 
     def delete_book(self, id, user_id):
         try:
@@ -203,8 +219,8 @@ class Book(Base):
 
     def remove_favourite_book(self, id, user_id):
         try:
-            book = db_session.query(Book).filter_by(id=id).first()
-            user = db_session.query(User).filter_by(id=user_id).first()
+            book = db_session.query(Book).filter(Book.id==id).first()
+            user = db_session.query(User).filter(User.id==user_id).first()
             if book and user:
                 book.favourites.remove(user)
                 db_session.commit()
@@ -213,7 +229,7 @@ class Book(Base):
                 return False
         except Exception as e:
             db_session.close()
-            return e
+            raise e
 
     def get_all_fav_books(self, user_id):
         try:
@@ -280,8 +296,6 @@ class Book(Base):
 
     def get_book(self, id):
         result = db_session.query(Book, User).select_from(join(User, Book)).filter(Book.id==id).first()
-
-        print(result)
 
         if result:
             book = Book.json_response(result[0])

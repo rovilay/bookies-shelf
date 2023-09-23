@@ -1,4 +1,4 @@
-name: Deploy API
+name: Deploy UI
 
 on:
   workflow_run:
@@ -19,5 +19,7 @@ jobs:
       - uses: akhileshns/heroku-deploy@v3.12.14 # This is the action
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "bookies-shelf-api" #Must be unique in Heroku
+          heroku_app_name: "bookies-shelf" #Must be unique in Heroku
           heroku_email: ${{secrets.HEROKU_EMAIL}}
+          appdir: ui
+          procfile: "web: npm start"
