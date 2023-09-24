@@ -186,15 +186,16 @@ class Book(Base):
 
     def delete_book(self, id, user_id):
         try:
-            book = db_session.query(Book).filter_by(id=id).first()
+            book = db_session.query(Book).filter(Book.id==id).first()
 
-            if book == None or book["user_id"] != user_id:
+            if book == None:
                 return False
+            
+            if book["user_id"] != user_id:
+                return 403
 
             book.favourites.clear()
-            db_session.commit()
 
-            book = db_session.query(Book).filter_by(id=id).first()
             db_session.delete(book)
             db_session.commit()
             return True

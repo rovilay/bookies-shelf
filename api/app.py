@@ -4,7 +4,7 @@ from flask import Flask, Response
 from flask_cors import CORS
 import prometheus_client
 from .controllers.user_controller import signup_user, login_user, get_user
-from .controllers.book_controller import get_all_books, get_books_by_id, create_books, modify_books, remove_books, fav_book, del_fav_book, get_all_fav_books
+from .controllers.book_controller import get_all_books, get_books_by_id, create_books, modify_books, fav_book, del_fav_book, get_all_fav_books
 from .settings import init_env_variables
 from .helpers.metrics import init_metrics
 
@@ -69,12 +69,6 @@ def add_books():
 @app.route(f'{url_prefix}/books/<int:id>', methods=['PUT'])
 def update_books(id):
     return modify_books(secret_key, id)
-
-
-@app.route(f'{url_prefix}/books/<int:id>', methods=['DELETE'])
-def delete_books(id):
-    return remove_books(secret_key, id)
-
 
 @app.route(f'{url_prefix}/books/favourites')
 def get_fav_books():

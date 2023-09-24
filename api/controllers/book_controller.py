@@ -140,33 +140,6 @@ def modify_books(secret_key, id):
         return server_res(str(e), location=location)
 
 
-def remove_books(secret_key, id):
-    location = f'/books/{id}'
-    try:
-        token = request.headers.get('authorization')
-        decoded_token = authenticate(token, secret_key)
-
-        user_id = decoded_token['id']
-        book_deleted = Book.delete_book(id, user_id)
-        response = None
-        if book_deleted is True:
-            message = 'Delete successful'
-            response = server_res(message, status=200, location=location)
-        elif book_deleted == 403:
-            message = f'This book does not belong to you'
-            response = server_res(message, status=403, location=location)
-        else:
-            message = f'book with id: {id} was not found'
-            response = server_res(message, status=404, location=location)
-        return response
-    except CustomException as e:
-        error_obj = e.get_exception_obj() 
-        response = server_res(error_obj['message'], status=error_obj['status'])
-        return response
-    except Exception as e:
-        return server_res(str(e), location=location)
-
-
 def fav_book(secret_key, id):
     location = f'/books/{id}/favourites'
     try:

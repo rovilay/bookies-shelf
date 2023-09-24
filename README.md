@@ -1,5 +1,22 @@
 # bookies-shelf app
 
+## Server
+
+1. Ensure [python](https://www.geeksforgeeks.org/download-and-install-python-3-latest-version/) is installed on your system
+2. In the project app, Navigate to api/
+3. on you terminal, change directory (cd) to path/to/server
+4. create `.env` from `.env.example`
+5. run `pip install -r requirements.txt` to install dependencies
+6. run `python -m api.app`
+7. run `python -m pytest tests` to run tests
+
+## Client
+
+1. Ensure [node](https://nodejs.org/en) is installed on your system
+2. cd to path/to/project/ui
+3. run `npm install`
+4. run `npm start`
+
 ## Monitoring
 This app uses [Prometheus](https://prometheus.io/) to get app metrics. You can use Grafana to visualize these metrics
 1. Install [Prometheus](https://prometheus.io/docs/prometheus/latest/installation/) (if you haven't)
